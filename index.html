@@ -1,0 +1,24 @@
+<progress></progress>
+<button>start</button>
+
+<script>
+  const bar = document.querySelector('progress');
+
+  document.querySelector('button').addEventListener('click', () => {
+    const ctx = new AudioContext();
+    ctx.audioWorklet.addModule('worklet.js').then(() => {
+      const node = new AudioWorkletNode(ctx, 'analyse-worklet');
+      requestAnimationFrame(function requestVolume() {
+          requestAnimationFrame(requestVolume);
+          node.port.postMessage('');
+      });
+      node.port.onmessage = ({ data }) => {
+        bar.value = data || 0;
+      };
+
+      navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
+         ctx.createMediaStreamSource(stream).connect(node);
+      });
+    });
+  });
+</script>
